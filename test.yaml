@@ -1,0 +1,61 @@
+# Org-level Superlevel Policy — host this file on a CDN for your organization.
+#
+# IT points the org manifest at this URL:
+#   /etc/aig/org-manifest.yaml  →  superlevel_policy_url: "https://<cdn>/test.yaml"
+#
+# Developers cannot change that URL once the org manifest is installed.
+
+org_id: "naukri-example"
+policy_version: 1
+
+# ── What goes in a superlevel file? ──────────────────────────────────────────
+# Any subset of the policy schema. You do NOT need every section — only include
+# what the org wants to centrally enforce. Missing sections fall through from
+# the developer's local ~/.config/aig/policies/*.yaml files.
+#
+# Org managers typically maintain modular YAML internally (roles/, global/, etc.)
+# and publish ONE merged file like this to the CDN.
+
+# Example: org locks down global rules for everyone
+global:
+  commands:
+    deny:
+      - sudo
+      - apt
+      - apt-get
+      - rm -rf /
+
+# Example: org defines canonical role budgets (overrides local roles.yaml)
+roles:
+  intern:
+    max_model_tier: haiku
+    limits:
+      daily_input_tokens: 30000
+      daily_output_tokens: 20000
+  developer:
+    max_model_tier: sonnet
+    limits:
+      daily_input_tokens: 150000
+      daily_output_tokens: 100000
+
+# Example: org assigns per-developer routing (overrides local developers.yaml)
+developers:
+  anubhav.singh@naukri.com:
+    role: developer
+    tools:
+      claude:
+        planning: claude-haiku
+        coding: claude-sonnet
+      gemini:
+        planning: gemini-flash
+        coding: gemini-2.5-pro
+
+  BASE_USER:
+    role: BASE_USER
+    tools:
+      claude:
+        planning: claude-sonnet
+        coding: claude-haiku
+      gemini:
+        planning: gemini-2.5-pro
+        coding: gemini-flash
